@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>The Strongest Women in America, Ranked by State</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<script src="https://d3js.org/d3.v7.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/topojson-client@3"></script>
+
+<style>
+
+:root{
+--bg:#F6F8FB;
+--ink:#0B1220;
+--muted:#667085;
+--border:#FFFFFF;
+--outline:rgba(11,18,32,0.16);
+
+--m0:#EEF2FF;
+--m1:#DDE7FF;
+--m2:#BBD0FF;
+--m3:#7DA7FF;
+--m4:#2F6BFF;
+--m5:#0B2A6B;
+}
+
+*{box-sizing:border-box;}
+
+body{
+margin:0;
+font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+background:var(--bg);
+color:var(--ink);
+padding:18px 14px 22px;
+}
+
+.wrap{
+max-width:1080px;
+margin:0 auto;
+}
+
+.hero{
+text-align:center;
+margin-bottom:10px;
+}
+
+.title{
+margin:0;
+font-weight:950;
+letter-spacing:-0.03em;
+line-height:1.05;
+font-size:clamp(22px,3.3vw,40px);
+}
+
+.card{
+background:#fff;
+border:1px solid rgba(11,18,32,0.08);
+border-radius:16px;
+overflow:hidden;
+}
+
+.map-wrap{
+padding:12px 12px 0;
+}
+
+svg{
+width:100%;
+height:auto;
+display:block;
+}
+
+.state{
+stroke:var(--border);
+stroke-width:3.6;
+stroke-linejoin:round;
+stroke-linecap:round;
+}
+
+.state-outline{
+fill:none;
+stroke:var(--outline);
+stroke-width:1.2;
+pointer-events:none;
+}
+
+.label{
+font-weight:950;
+fill:#0B1220;
+paint-order:stroke;
+stroke:#ffffff;
+stroke-width:5.2;
+pointer-events:none;
+}
+
+.legend{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:12px;
+padding:10px 14px;
+border-top:1px solid rgba(11,18,32,0.06);
+background:#fff;
+}
+
+.legend span{
+font-size:12px;
+font-weight:900;
+color:var(--muted);
+text-transform:uppercase;
+}
+
+.legend .bar{
+width:min(430px,74vw);
+height:12px;
+border-radius:999px;
+background:linear-gradient(90deg,var(--m0),var(--m1),var(--m2),var(--m3),var(--m4),var(--m5));
+border:1px solid rgba(11,18,32,0.12);
+}
+
+.under{
+padding:14px 16px 20px;
+border-top:1px solid rgba(11,18,32,0.06);
+background:#fff;
+display:flex;
+gap:18px;
+justify-content:space-between;
+align-items:flex-start;
+flex-wrap:wrap;
+}
+
+.notes{
+flex:1 1 620px;
+min-width:260px;
+}
+
+.note{
+margin:0;
+font-size:12px;
+line-height:1.35;
+color:var(--muted);
+font-weight:750;
+}
+
+.meta{
+margin-top:6px;
+font-size:11px;
+color:rgba(11,18,32,0.65);
+}
+
+.brand{
+flex:0 0 auto;
+text-align:right;
+min-width:150px;
+}
+
+.credit{
+font-size:11px;
+font-weight:800;
+letter-spacing:0.03em;
+text-transform:uppercase;
+color:rgba(11,18,32,0.55);
+margin-bottom:8px;
+}
+
+.brand img{
+max-width:160px;
+height:auto;
+display:block;
+margin-left:auto;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="wrap">
+
+<div class="hero">
+<h1 class="title">The Strongest Women in America, Ranked by State</h1>
+</div>
+
+<div class="card">
+
+<div class="map-wrap">
+<svg id="map" viewBox="0 0 975 610"></svg>
+</div>
+
+<div class="legend">
+<span>Lower</span>
+<div class="bar"></div>
+<span>Higher</span>
+</div>
+
+<div class="under">
+
+<div class="notes">
+<p class="note"><b>Read it:</b> Each state is shaded by Final Strength Score. Labels show the state's rank (#1–#50).</p>
+
+<div class="meta">
+<b>Pillars:</b> Physical Activity (40%), Work & Household Leadership (30%), Civic Participation (30).  
+</div>
+</div>
+
+<div class="brand">
+<div class="credit">Created by: RotoGrinders</div>
+<img src="https://i.postimg.cc/y8rQX0nF/download.png" alt="RotoGrinders logo">
+</div>
+
+</div>
+</div>
+</div>
+
+<script>
+
+const strengthData = {
+"Texas":{abbr:"TX",score:59.51,rank:1},
+"South Carolina":{abbr:"SC",score:56.31,rank:2},
+"Colorado":{abbr:"CO",score:52.14,rank:3},
+"Louisiana":{abbr:"LA",score:51.09,rank:4},
+"Ohio":{abbr:"OH",score:50.21,rank:5},
+"Vermont":{abbr:"VT",score:49.30,rank:6},
+"Minnesota":{abbr:"MN",score:49.26,rank:7},
+"Montana":{abbr:"MT",score:48.59,rank:8},
+"Maryland":{abbr:"MD",score:48.51,rank:9},
+"Massachusetts":{abbr:"MA",score:48.19,rank:10},
+"Delaware":{abbr:"DE",score:47.93,rank:11},
+"Missouri":{abbr:"MO",score:47.52,rank:12},
+"Iowa":{abbr:"IA",score:46.39,rank:13},
+"Illinois":{abbr:"IL",score:46.18,rank:14},
+"Georgia":{abbr:"GA",score:45.95,rank:15},
+"Virginia":{abbr:"VA",score:45.93,rank:16},
+"Wisconsin":{abbr:"WI",score:45.65,rank:17},
+"North Dakota":{abbr:"ND",score:45.62,rank:18},
+"South Dakota":{abbr:"SD",score:44.98,rank:19},
+"Mississippi":{abbr:"MS",score:44.94,rank:20},
+"North Carolina":{abbr:"NC",score:44.52,rank:21},
+"Washington":{abbr:"WA",score:44.20,rank:22},
+"Michigan":{abbr:"MI",score:43.36,rank:23},
+"New Mexico":{abbr:"NM",score:43.12,rank:24},
+"New Hampshire":{abbr:"NH",score:42.09,rank:25},
+"Wyoming":{abbr:"WY",score:41.90,rank:26},
+"Alabama":{abbr:"AL",score:41.66,rank:27},
+"Maine":{abbr:"ME",score:41.66,rank:28},
+"New York":{abbr:"NY",score:41.45,rank:29},
+"Florida":{abbr:"FL",score:41.22,rank:30},
+"Arizona":{abbr:"AZ",score:41.04,rank:31},
+"Oregon":{abbr:"OR",score:40.58,rank:32},
+"Tennessee":{abbr:"TN",score:40.33,rank:33},
+"New Jersey":{abbr:"NJ",score:40.20,rank:34},
+"Alaska":{abbr:"AK",score:39.87,rank:35},
+"California":{abbr:"CA",score:39.78,rank:36},
+"Connecticut":{abbr:"CT",score:39.16,rank:37},
+"Nebraska":{abbr:"NE",score:39.02,rank:38},
+"Kansas":{abbr:"KS",score:38.76,rank:39},
+"Indiana":{abbr:"IN",score:38.65,rank:40},
+"Pennsylvania":{abbr:"PA",score:36.71,rank:41},
+"Idaho":{abbr:"ID",score:36.11,rank:42},
+"Oklahoma":{abbr:"OK",score:33.61,rank:43},
+"Rhode Island":{abbr:"RI",score:33.38,rank:44},
+"Arkansas":{abbr:"AR",score:33.29,rank:45},
+"Utah":{abbr:"UT",score:32.18,rank:46},
+"Nevada":{abbr:"NV",score:30.88,rank:47},
+"West Virginia":{abbr:"WV",score:29.45,rank:48},
+"Kentucky":{abbr:"KY",score:29.27,rank:49},
+"Hawaii":{abbr:"HI",score:27.67,rank:50}
+};
+
+const ramp=["#EEF2FF","#DDE7FF","#BBD0FF","#7DA7FF","#2F6BFF","#0B2A6B"];
+
+const color=d3.scaleQuantize()
+.domain(d3.extent(Object.values(strengthData),d=>d.score))
+.range(ramp);
+
+const svg=d3.select("#map");
+
+const projection=d3.geoAlbersUsa()
+.scale(1300)
+.translate([487,305]);
+
+const path=d3.geoPath(projection);
+
+const labelOffset={
+CT:[18,8],RI:[26,12],MA:[18,-6],VT:[-10,-6],
+NH:[12,-10],NJ:[22,10],DE:[18,12],MD:[10,18]
+};
+
+d3.json("https://cdn.jsdelivr.net/npm/us-atlas@3/states-10m.json").then(us=>{
+
+const states=topojson.feature(us,us.objects.states).features;
+
+svg.selectAll("path.state")
+.data(states)
+.join("path")
+.attr("class","state")
+.attr("d",path)
+.attr("fill",d=>{
+const info=strengthData[d.properties.name];
+return info?color(info.score):"#F3F4F6";
+});
+
+svg.append("path")
+.datum(topojson.mesh(us,us.objects.states,(a,b)=>a!==b))
+.attr("class","state-outline")
+.attr("d",path);
+
+svg.append("g")
+.selectAll("text.label")
+.data(states)
+.join("text")
+.attr("class","label")
+.text(d=>{
+const info=strengthData[d.properties.name];
+return info?("#"+info.rank):"";
+})
+.attr("x",d=>{
+const info=strengthData[d.properties.name];
+if(!info)return -9999;
+const c=path.centroid(d);
+const off=labelOffset[info.abbr]||[0,0];
+return c[0]+off[0];
+})
+.attr("y",d=>{
+const info=strengthData[d.properties.name];
+if(!info)return -9999;
+const c=path.centroid(d);
+const off=labelOffset[info.abbr]||[0,0];
+return c[1]+off[1];
+})
+.attr("text-anchor","middle")
+.attr("font-size",d=>{
+const info=strengthData[d.properties.name];
+if(!info)return 0;
+const small=["CT","RI","MA","NJ","DE","MD","VT","NH"];
+return small.includes(info.abbr)?10.5:12.5;
+});
+
+});
+
+</script>
+
+</body>
+</html>
